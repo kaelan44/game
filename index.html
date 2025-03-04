@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Player Model with Controls</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+<script>
+    // Set up the scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add OrbitControls for camera movement
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // Load the 3D player model (GLTF)
+    const loader = new THREE.GLTFLoader();
+    let player;
+
+    loader.load('https://example.com/path/to/your/player_model.glb', function(gltf) {
+        player = gltf.scene;
+        scene.add(player);
+        player.scale.set(1, 1, 1); // Adjust size as needed
+        player.position.y = 0; // Set model height
+    }, undefined, function(error) {
+        console.error(error);
+    });
+
+    // Set the camera position
+    camera.position.z = 5;
+
+    // Movement Variables
+    let moveSpeed = 0.1;
+    let keys = {};
+
+    // Event Listeners for Key Press
+    window.addEventListener("keydown", (event) => {
+        keys[event.key] = true;
+    });
+
+    window.addEventListener("keyup", (event) => {
+        keys[event.key] = false;
+    });
+
+    // Animation loop to move the model
+    function animate() {
+        requestAnimationFrame(animate);
+
+        if (player) {
+            // Move the player based on key presses
+            if (keys["ArrowUp"] || keys["w"]) player.position.z -= moveSpeed;
+            if (keys["ArrowDown"] || keys["s"]) player.position.z += moveSpeed;
+            if (keys["ArrowLeft"] || keys["a"]) player.position.x -= moveSpeed;
+            if (keys["ArrowRight"] || keys["d"]) player.position.x += moveSpeed;
+
+            // Rotate the player model (optional)
+            player.rotation.y += 0.01;
+        }
+
+        controls.update(); // Update OrbitControls
+        renderer.render(scene, camera);
+    }
+
+    animate();
+</script>
+
+</body>
+</html>
